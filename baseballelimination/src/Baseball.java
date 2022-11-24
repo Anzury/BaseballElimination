@@ -74,7 +74,7 @@ class Baseball {
      *
      * R    : the flow network for team k
      */
-    public static TestEliminationEquipe() {
+    public static void TestEliminationEquipe() {
         // TODO implement
     }
 
