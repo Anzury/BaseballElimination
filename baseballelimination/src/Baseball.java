@@ -66,15 +66,18 @@ class Baseball {
         return new FlowNetwork(n, data);
     }
 
-    /* Do test for team k
+    /* Do test for team t
      *
-     * R            : the flow network for team k
+     * t            : team index
+     * R            : the flow network for team t
      * eliminated   : each team status
      */
     public static void TestEliminationEquipe(
+        int t,
         FlowNetwork R,
         boolean[] eliminated) {
-        // TODO
+        if(!R.flowExists()) eliminated[t] = true;
+        for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
     }
 
 
