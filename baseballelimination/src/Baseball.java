@@ -77,7 +77,11 @@ class Baseball {
         FlowNetwork R,
         boolean[] eliminated) {
         if(!R.flowExists()) eliminated[t] = true;
+<<<<<<< HEAD
         // for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
+=======
+        for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
+>>>>>>> origin/HEAD
     }
 
 
