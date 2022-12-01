@@ -24,11 +24,11 @@ class Edge {
     }
 }
 
-// Class to represent a flow network adapted to the BinIm problem
+// Class to represent a flow network adapted to the baseball problem
 class FlowNetwork {
     // Adjacency list
     ArrayList<ArrayList<Edge>> adj_list; 
-    private int n, m;
+    private int n;
 
     private int source = 0, sink = -1; // Source and sink
     private int maxFlow = -1; // Maximum flow value
@@ -40,54 +40,41 @@ class FlowNetwork {
     // otherwise.
     private boolean solved = false; 
 
-    FlowNetwork(int n, int m, int[][] A, int[][] B, int[][] Ph, int[][] Pv){
+    FlowNetwork(int t ,int n, int[][] Data){
         this.n = n;
-        this.m = m;
         
         // Loop variables
         int x = 0, y = 0, k = 0, idx = 0;
 
         // Set size of adjacency list
-        this.sink = m*n+1;
+        this.sink = (n*(n-1)/2) + n + 1;
         this.adj_list = new ArrayList<ArrayList<Edge>>(this.sink+1);
-        for(k = 0; k < m*n+2; k++)
+        for(k = 0; k < sink+1; k++)
             adj_list.add(k, new ArrayList<Edge>());
 
         // We have three types of edges :
         // ---------------- FIRST TYPE OF EDGE ----------------
-        // The edges from the source s and all the other vertices 
+        // The edges from the source s and the matches 
         // (by convention, s = 0)
-
-        for(y = 0; y < n; y++)
-            for(x = 0; x < m; x++)
-                // y*m+x+1 => 2D coordinates to 1D array coordinate
-                adj_list.get(0).add(new Edge(y*m+x+1, A[y][x], 0));
-
+        // (matches are sorted in order of minimum index : 1-2, 1-3, ... , 2-5,2-6, ...)
+        for(y = 1; y <= n-1; y++){
+            for(x = y; x <= n-1; x++)
+                adj_list.get(0).add(new Edge(y+1, Data[y][x+2], 0));
+        }
         // ---------------- SECOND TYPE OF EDGE ----------------
-        // The edges between vertices (other than the source and the pit) 
+        // The edges between matches and team
 
         // Penalties
-        for(y = 0; y < n; y++){
-            for(x = 0; x < m; x++){
-                idx = y*m+x+1;
-
-                // horizontal penalties
-                if(x != m-1)
-                    adj_list.get(idx).add(new Edge(idx+1, Ph[y][x], 0));
-                if(x > 0)
-                    adj_list.get(idx).add(new Edge(idx-1, Ph[y][x-1], 0));
-
-                // vertical penalties
-                if(y != n-1)
-                    adj_list.get(idx).add(new Edge(idx+m, Pv[y][x], 0));
-                if(y > 0)
-                    adj_list.get(idx).add(new Edge(idx-m, Pv[y-1][x], 0));
-            }
+        for(y = 1; y < n*(n-1)/2; y++){
+            
+            adj_list.get(y).add(new Edge(t, k, idx));
+            adj_list.get(y).add(new Edge(t, k, idx));
         }
 
+
         // ---------------- THIRD TYPE OF EDGE ----------------
-        // The edges between all vertices (except s) and the pit
-        // (by convention, p = m*n+2)
+        // The edges between teams and the pit
+        // (by convention, p = (n*(n-1)/2) + n + 2)
         for(y = 0; y < n; y++)
             for(x = 0; x < m; x++)
                 adj_list.get(y*m+x+1).add(new Edge(this.sink, B[y][x], 0));
@@ -138,7 +125,7 @@ class FlowNetwork {
         }
     }
 
-    /* Depth First Search procedure adapted to the BinIm problem 
+    /* Depth First Search procedure adapted to the baseball problem 
      * 
      * node : the node from which we start the procedure
      * flow : the current flow passing through that node
