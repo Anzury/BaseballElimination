@@ -63,18 +63,21 @@ class Baseball {
      *            have to play and against who they gotta play them with
      */
     public static FlowNetwork ConstructionReseau(int t, int n, int[][] data) {
-        return new FlowNetwork(n, data);
+        return new FlowNetwork(t,n, data);
     }
 
-    /* Do test for team k
+    /* Do test for team t
      *
-     * R            : the flow network for team k
+     * t            : team index
+     * R            : the flow network for team t
      * eliminated   : each team status
      */
     public static void TestEliminationEquipe(
+        int t,
         FlowNetwork R,
         boolean[] eliminated) {
-        // TODO
+        if(!R.flowExists()) eliminated[t] = true;
+        // for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
     }
 
 
@@ -97,8 +100,8 @@ class Baseball {
         for(i = 0; i < n; i++) {
             // Construct the network from data
             if(!eliminated[i]) {
-                FlowNetwork R = ConstructionReseau(t, n, data);
-                TestEliminationEquipe(R, eliminated);
+                FlowNetwork R = ConstructionReseau(i, n, data);
+                TestEliminationEquipe(i,R, eliminated);
             }
         }
 
@@ -140,6 +143,8 @@ class Baseball {
                 }
 
                 TestEliminationToutes(n, names, data, eliminated);
+                for(i = 0; i < n; i++) {
+                    System.out.println(eliminated[i]);}
                 // Close input stream
                 file.close();
             } catch(FileNotFoundException e) { // File not found
