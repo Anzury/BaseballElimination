@@ -35,7 +35,7 @@ class Baseball {
      * author   : Juanfer MERCIER
      * date     : last modified December 27th 2022
      */
-    public static /*Optional<String>*/ String getExtension(String filename) {
+    public static String getExtension(String filename) {
         if(filename.contains("."))
             return filename.substring(filename.lastIndexOf(".") + 1);
         else
@@ -45,7 +45,7 @@ class Baseball {
     /* Displays the program's manual */
     private static void usage() {
         System.err.println("Usage: java Baseball file.txt");
-        System.err.println("Solve the image binarization problem on instance file.txt");
+        System.err.println("Solve the baseball elimination problem on instance file.txt");
     }
 
     /* Return next int from file when possible, -1 otherwise */
@@ -55,47 +55,52 @@ class Baseball {
         return -1;
     }
 
-    // TODO change parameters
     /* Construct flow network using the data provided
      *
-     * n    : number of rows
-     * m    : number of columns
-     * A    : foreground likelihood score
-     * B    : background likelihood score
-     * Ph   : horizontal penalties
-     * Pv   : vertical penalties
+     * t        : index of team considered
+     * n        : number of rows
+     * data     : matrix containing the number of games the teams have won,
+     *            have to play and against who they gotta play them with
      */
-    public static FlowNetwork ConstructionReseau(int n, int m, int[][] A, int[][] B, int[][] Ph, int[][] Pv) {
-        return new FlowNetwork(n, m, A, B, Ph, Pv);
+    public static FlowNetwork ConstructionReseau(int t, int n, int[][] data) {
+        return new FlowNetwork(n, data);
     }
 
-    // TODO change parameters
     /* Do test for team k
      *
-     * R    : the flow network for team k
+     * R            : the flow network for team k
+     * eliminated   : each team status
      */
-    public static void TestEliminationEquipe() {
-        // TODO implement
+    public static void TestEliminationEquipe(
+        FlowNetwork R,
+        boolean[] eliminated) {
+        // TODO
     }
 
 
-    // TODO change parameters
     /* Solve the baseball elimination problem on the data provided
      *
-     * n    : number of rows
-     * m    : number of columns
-     * A    : foreground likelihood score
-     * B    : background likelihood score
-     * Ph   : horizontal penalties
-     * Pv   : vertical penalties
+     * n            : number of teams
+     * names        : team names
+     * data         : matrix containing the number of games the teams have won,
+     *                have to play and against who they gotta play them with
+     * eliminated   : each team status
      */
-    public static void TestEliminationToutes(int n, int m, int[][] A, int[][] B, int[][] Ph, int[][] Pv) {
-        // TODO loop to construct FlowNetwork of team 1, do the test,
-        // eliminate other teams according to lemma and repeat with
-        // remaining teams
+    public static void TestEliminationToutes(
+        int n,
+        String[] names,
+        int[][] data,
+        boolean[] eliminated) {
+        // Loop variables
+        int i;
 
-        // Construct the network from file
-        FlowNetwork R = ConstructionReseau(n, m, A, B, Ph, Pv);
+        for(i = 0; i < n; i++) {
+            // Construct the network from data
+            if(!eliminated[i]) {
+                FlowNetwork R = ConstructionReseau(t, n, data);
+                TestEliminationEquipe(R, eliminated);
+            }
+        }
 
     }
 
@@ -103,63 +108,42 @@ class Baseball {
         // Check if length of args array is
         // greater than 0
         if(args.length == 1) {
-            // Check if filename has extension .txt
-            String ext = getExtension(args[0]);
+            // CHECKS PASSED. Now we read the file...
+            try {
+                Scanner file = new Scanner(new File(args[0]));
+                // Loop and useful variables
+                int i = 0, j = 0, idx = 0;
 
-            if("txt".equals(ext)){
-                // CHECKS PASSED. Now we read the file...
-                try {
-                    Scanner file = new Scanner(new File(args[0]));
+                // Number of rows
+                int n = getInt(file);
+                // Team names
+                String[] names = new String[n];
+                // Team relevant data
+                int[][] data = new int[n][n+2];
+                // Team status
+                boolean[] eliminated = new boolean[n];
 
-                    // TODO modify loading structures
 
-                    // Loop variables
-                    int i = 0, j = 0, k = 0;
-
-                    // Number of rows
-                    int n = getInt(file);
-                    // Number of columns
-                    int m = getInt(file);
-
-                    // Set A
-                    int[][] A = new int[n][m];
-                    // Set B
-                    int[][] B = new int[n][m];
-                    // Horizontal and vertical penalties
-                    int[][] Ph = new int[n][m-1];
-                    int[][] Pv = new int[n-1][m];
-
-                    // Read values of A and B from file
-                    for(k = 0; k < 2; k++)
-                        for(i = 0; i < n; i++)
-                            for(j = 0; j < m; j++)
-                                if(k == 0)
-                                    A[i][j] = getInt(file);
-                                else
-                                    B[i][j] = getInt(file);
-
-                    // Read values of Ph from file
-                    for(i = 0; i < n; i++)
-                        for(j = 0; j < m-1; j++)
-                            Ph[i][j] = getInt(file);
-
-                    // Read values of Pv from file
-                    for(i = 0; i < n-1; i++)
-                        for(j = 0; j < m; j++)
-                            Pv[i][j] = getInt(file);
-
-                    // TODO replace call with correct arguments
-                    // Solve BinIm problem
-                    TestEliminationToutes(n, m, A, B, Ph, Pv);
-
-                    // Close input stream
-                    file.close();
-                } catch(FileNotFoundException e) { // File not found
-                    System.err.println(ANSI_RED + "File \"" + args[0] + "\" not found\n" + ANSI_RESET);
-                    usage();
+                for(i = 0; i < n; i++) {
+                    idx = getInt(file)-1;
+                    names[idx] = file.next().replace('-', ' ');
+                    for(j = 0; j < n+2; j++) data[idx][j] = getInt(file);
+                    eliminated[i] = false;
                 }
-            } else { // File extension not ".txt"
-                System.err.println(ANSI_RED + "File extension shall be \".txt\" (without quotes)\n" + ANSI_RESET);
+                
+                for(i = 0; i < n; i++) {
+                    System.out.println(names[i]);
+                    for(j = 0; j < n+2; j++) {
+                        System.out.print(data[i][j] + " ");
+                    }
+                    System.out.println();
+                }
+
+                TestEliminationToutes(n, names, data, eliminated);
+                // Close input stream
+                file.close();
+            } catch(FileNotFoundException e) { // File not found
+                System.err.println(ANSI_RED + "File \"" + args[0] + "\" not found\n" + ANSI_RESET);
                 usage();
             }
         } else { // No file specified
