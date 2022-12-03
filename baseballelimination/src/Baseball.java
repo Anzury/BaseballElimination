@@ -16,31 +16,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 class Baseball {
-    /* ANSI escape codes to print text with a certain color
-     *
-     * DISCLAIMER : The following constants where borrowed from :
-     * https://stackoverflow.com/questions/5762491/how-to-print-color-in-console-using-system-out-println
-     *
-     * author   : WhiteFang34, shakram02
-     * editor   : SergeyB
-     */
+    /* ANSI escape codes to print text with a certain color */
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\033[1;31m";
     public static final String ANSI_GREEN = "\033[1;32m";
-    public static final String ANSI_PURPLE = "\033[1;35m";
     public static final String ANSI_CYAN = "\u001B[36m";
-
-    /* Returns the extension of the filename
-     *
-     * author   : Juanfer MERCIER
-     * date     : last modified December 27th 2022
-     */
-    public static String getExtension(String filename) {
-        if(filename.contains("."))
-            return filename.substring(filename.lastIndexOf(".") + 1);
-        else
-            return "";
-    }
 
     /* Displays the program's manual */
     private static void usage() {
@@ -57,13 +37,18 @@ class Baseball {
 
     /* Construct flow network using the data provided
      *
-     * t        : index of team considered
-     * n        : number of rows
-     * data     : matrix containing the number of games the teams have won,
-     *            have to play and against who they gotta play them with
+     * t            : index of team considered
+     * n            : number of rows
+     * data         : matrix containing the number of games the teams have won,
+     *                have to play and against who they gotta play them with
+     * elimiated    : vector of booleans at true whenever a team is eliminated
      */
-    public static FlowNetwork ConstructionReseau(int t, int n, int[][] data) {
-        return new FlowNetwork(t,n, data);
+    public static FlowNetwork ConstructionReseau(
+            int t,
+            int n,
+            int[][] data,
+            boolean[] eliminated) {
+        return new FlowNetwork(t, n, data, eliminated);
     }
 
     /* Do test for team t
@@ -74,14 +59,16 @@ class Baseball {
      */
     public static void TestEliminationEquipe(
         int t,
+        String[] names,
         FlowNetwork R,
         boolean[] eliminated) {
-        if(!R.flowExists()) eliminated[t] = true;
-<<<<<<< HEAD
-        // for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
-=======
-        for(int i : R.getEliminatedByLemma()) eliminated[i] = true;
->>>>>>> origin/HEAD
+        if(!R.flowExists()) {
+            eliminated[t] = true;
+            System.out.println("Les " + names[t] + " sont éliminés.");
+        }
+
+        if(eliminated[t])
+            R.useEliminationLemma(t, names, eliminated);
     }
 
 
@@ -104,8 +91,8 @@ class Baseball {
         for(i = 0; i < n; i++) {
             // Construct the network from data
             if(!eliminated[i]) {
-                FlowNetwork R = ConstructionReseau(i, n, data);
-                TestEliminationEquipe(i,R, eliminated);
+                FlowNetwork R = ConstructionReseau(i, n, data, eliminated);
+                TestEliminationEquipe(i, names, R, eliminated);
             }
         }
 
@@ -137,18 +124,24 @@ class Baseball {
                     for(j = 0; j < n+2; j++) data[idx][j] = getInt(file);
                     eliminated[i] = false;
                 }
-                
+
+                System.out.println(ANSI_CYAN + "Noms des équipes :");
                 for(i = 0; i < n; i++) {
-                    System.out.println(names[i]);
-                    for(j = 0; j < n+2; j++) {
-                        System.out.print(data[i][j] + " ");
-                    }
-                    System.out.println();
+                    System.out.println("\t" + names[i]);
                 }
 
+                System.out.println(ANSI_RESET + "\nDébut de la méthode...\n" + ANSI_RED);
+
                 TestEliminationToutes(n, names, data, eliminated);
+
+                System.out.println(ANSI_RESET + "Fin de la méthode.\n");
+
+                System.out.println(ANSI_GREEN + "Équipes restantes : ");
                 for(i = 0; i < n; i++) {
-                    System.out.println(eliminated[i]);}
+                    if(!eliminated[i]) System.out.println("\t" + names[i]);
+                }
+                System.out.println(ANSI_RESET);
+
                 // Close input stream
                 file.close();
             } catch(FileNotFoundException e) { // File not found
