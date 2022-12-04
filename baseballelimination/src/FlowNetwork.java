@@ -178,7 +178,7 @@ class FlowNetwork {
             // is eliminated
             idx = i-matches-1;
             if(this.adj_list.get(i).get(0).dest == matches+this.n
-            && this.adj_list.get(i).get(0).cap-gi.get(idx) >= 0) {
+            && this.adj_list.get(i).get(0).cap-gi.get(idx) >= 0 && idx != t) {
                 eliminated[idx] = true;
                 System.out.println("D'après le lemme, les " + names[idx] + " sont aussi éliminés.");
             } else toSink = false;

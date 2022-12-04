@@ -120,7 +120,7 @@ class Baseball {
 
                 for(i = 0; i < n; i++) {
                     idx = getInt(file)-1;
-                    names[idx] = file.next().replace('-', ' ');
+                    names[idx] = file.next().replace('-', ' ').replace('_', ' ');
                     for(j = 0; j < n+2; j++) data[idx][j] = getInt(file);
                     eliminated[i] = false;
                 }
