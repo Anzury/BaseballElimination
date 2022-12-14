@@ -95,7 +95,6 @@ class FlowNetwork {
         else {
             int flow = -1; // Flow returned by the DFS procedure
             int N = this.sink+1;
-            this.visited = new boolean[N];
             this.maxFlow = 0; // Maximum flow
 
             // Find max flow using Depth First Search (DFS)
@@ -129,11 +128,10 @@ class FlowNetwork {
 
         // Get list of edges of the node
         List<Edge> edges = this.adj_list.get(node);
-        this.visited[node] = true; // We mark the node as visited
 
         for(Edge e : edges) {
            // If we found an augmenting path
-            if(visited[e.dest] != true && e.cap-e.flow > 0) {
+            if(e.cap-e.flow > 0) {
                 // Update flow and run DFS from the node
                 flow = Math.min(e.cap-e.flow, flow);
                 subflow = DFS(e.dest, flow);
